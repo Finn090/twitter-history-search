@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="de"><head><title>Twhist</title></head>
+    <body>
+        <h1>Twhist</h1>
+        <form method="POST">
+            <pre><label for="query">Query </label></pre>
+            <input name="query" value="{{query}}"><br>
+            <pre><label for="since">Since </label></pre>
+            <input type="date" name="since" value="{{since}}"><br>
+            <pre><label for="until">Until </label></pre>
+            <input type="date" name="until" value="{{until}}"><br>
+            <input type="submit">
+        </form>
+        <p>
+            Eingaben: query={{query}}, since={{since}}, until={{until}}
+        </p>
+        <p>
+            <h2>Results</h2>
+            {{results}}
+        </p>
+    </body>
+</html>
