@@ -1,9 +1,12 @@
 import time
+import pandas as pd
 from datetime import datetime, date, timedelta
 from dateutil import parser
 from dateutil.relativedelta import relativedelta
+from bs4 import BeautifulSoup
 
-import re
+
+#import re
 
 from selenium import webdriver
 # from selenium.common.exceptions import (
@@ -39,6 +42,10 @@ class Twhist():
             print('Supported intervalls are: day, month, year')
             return
 
+        if len(query) == 0:
+            print ('Please enter a query.')
+            return
+
         if end <= start:
             print ('End date needs to be at least one day after start date.')
             return
@@ -58,6 +65,8 @@ class Twhist():
 
             results.extend(self.call(query, query_start, query_end))
             query_start = query_end
+        
+        results = pd.DataFrame(results, columns=['tid', 'uhandle', 'uid', 'content', 'date', 'retweets', 'replies', 'favorites', 'hashtags', 'text_link', 'attached_link'])
         return results
 
 
@@ -84,24 +93,76 @@ class Twhist():
         lenOfPage = self.wd.execute_script(script)
         match = False
         while not match:
-            print('.', end='')
+            #print('.', end='')
             lastCount = lenOfPage
             time.sleep(3)
             lenOfPage = self.wd.execute_script(script)
             if lastCount == lenOfPage:
                 match = True
        
-        links = self.wd.find_elements_by_tag_name('a')
-
-        regex = r'https?:\/\/twitter.com\/(\w+)\/status\/(\d+)'
+        
 
         results = []
+
+        soup = BeautifulSoup(self.wd.page_source, 'html.parser')
+
+        for elem in soup.find_all(class_='tweet'):
+            tid = elem.get('data-tweet-id')
+            uhandle = elem.find(class_='username').text
+            uid = elem.get('data-user-id')
+            
+            if elem.find(class_='tweet-timestamp').get('data-original-title'):
+                date = elem.find(class_='tweet-timestamp').get('data-original-title')
+            elif elem.find(class_='tweet-timestamp').get('title'):
+                date = elem.find(class_='tweet-timestamp').get('title')
+            else:
+                date = elem.find(class_='tweet-timestamp')
+
+            if elem.find(class_='js-tweet-text').text:
+                content = elem.find(class_='js-tweet-text').text
+            else:
+                content = ' '.join(str(item) for item in elem.find(class_='js-tweet-text').contents)
+            hashtags = []
+            for  ht in elem.find_all(class_='twitter-hashtag'):
+                hashtags.append(ht.text)
+            if elem.find(class_='link'):
+                text_link = elem.find(class_='twitter-timeline-link').get('href')
+            else:
+                text_link = 'None'
+
+            if elem.find(class_='js-macaw-cards-iframe-container'):
+                attached_link = elem.find(class_='js-macaw-cards-iframe-container').get('data-card-url')
+            else:
+                attached_link = 'None'
+
+            if elem.find(class_='ProfileTweet-action--retweet'):
+                retweets = elem.find(class_='ProfileTweet-action--retweet').find(class_='ProfileTweet-actionCount').get('data-tweet-stat-count')
+            else:
+                retweets = 'None'
+            if elem.find(class_='ProfileTweet-action--reply'):
+                replies = elem.find(class_='ProfileTweet-action--reply').find(class_='ProfileTweet-actionCount').get('data-tweet-stat-count')
+            else:
+                replies = 'None'
+            if elem.find(class_='ProfileTweet-action--favorite'):
+                favorites = elem.find(class_='ProfileTweet-action--favorite').find(class_='ProfileTweet-actionCount').get('data-tweet-stat-count')
+            else:
+                favorites = 'None'
+
+
+            results.append([tid, uhandle, uid, content, date, retweets, replies, favorites, hashtags, text_link, attached_link])
+        
+
+        '''
+        links = self.wd.find_elements_by_tag_name('a')
+        regex = r'https?:\/\/twitter.com\/(\w+)\/status\/(\d+)'
+
         for a in links:
             href = a.get_attribute('href')
             group = None
             match = re.match(regex, str(href))
             if match:
                 results.append(match.group(2))
+        
+        '''
         return results
-    
 
