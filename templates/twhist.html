@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="de"><head><title>Tool</title></head>
+    <body>
+        <h1>Rechnen</h1>
+        <form method="POST">
+            Texteingabe:
+            <input name="a" value="{{a}}"><br><br>
+            Option:
+            <select name="b">
+                <option {{'selected' if not b else ''}}label="-">
+                <option {{'selected' if b == '1' else ''}}>1</option>
+                <option {{'selected' if b == '2' else ''}}>2</option>
+                <option {{'selected' if b == '3' else ''}}>3</option>
+            </select><br><br>
+            <input type="submit">
+        </form>
+        <p>
+            Eingaben: a={{a}}, b={{b}}
+        </p>
+    </body>
+</html>
