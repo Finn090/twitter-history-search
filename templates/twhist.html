@@ -1,21 +1,22 @@
 <!DOCTYPE html>
-<html lang="de"><head><title>Tool</title></head>
+<html lang="de"><head><title>Twhist</title></head>
     <body>
-        <h1>Rechnen</h1>
+        <h1>Twhist</h1>
         <form method="POST">
-            Texteingabe:
-            <input name="a" value="{{a}}"><br><br>
-            Option:
-            <select name="b">
-                <option {{'selected' if not b else ''}}label="-">
-                <option {{'selected' if b == '1' else ''}}>1</option>
-                <option {{'selected' if b == '2' else ''}}>2</option>
-                <option {{'selected' if b == '3' else ''}}>3</option>
-            </select><br><br>
+            <pre><label for="query">Query </label></pre>
+            <input name="query" value="{{query}}"><br>
+            <pre><label for="since">Since </label></pre>
+            <input type="date" name="since" value="{{since}}"><br>
+            <pre><label for="until">Until </label></pre>
+            <input type="date" name="until" value="{{until}}"><br>
             <input type="submit">
         </form>
         <p>
-            Eingaben: a={{a}}, b={{b}}
+            Eingaben: query={{query}}, since={{since}}, until={{until}}
+        </p>
+        <p>
+            <h2>Results</h2>
+            {{results}}
         </p>
     </body>
 </html>
