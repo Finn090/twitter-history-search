@@ -80,7 +80,7 @@ class Twhist():
             f'%20since%3A{query_start}%20until%3A{query_end}'
         )
 
-        print(search_url)
+        print(search_url, end='')
 
         self.wd.get(search_url)
 
@@ -93,13 +93,13 @@ class Twhist():
         lenOfPage = self.wd.execute_script(script)
         match = False
         while not match:
-            #print('.', end='')
+            print('.', end='')
             lastCount = lenOfPage
             time.sleep(3)
             lenOfPage = self.wd.execute_script(script)
             if lastCount == lenOfPage:
                 match = True
-       
+        print('\n')
         
 
         results = []
