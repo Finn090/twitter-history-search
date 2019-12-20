@@ -1,19 +1,27 @@
+#Simple Python module for retrieving historic tweets.
+#Copyright (C) 2019 Marcus Burkhardt and Jörn Preuss
+#
+#This program is free software: you can redistribute it and/or modify
+#it under the terms of the GNU General Public License as published by
+#the Free Software Foundation, either version 3 of the License, or
+#(at your option) any later version.
+#
+#This program is distributed in the hope that it will be useful,
+#but WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#GNU General Public License for more details.
+#
+#You should have received a copy of the GNU General Public License
+#along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 import time
 import pandas as pd
 from datetime import datetime, date, timedelta
 from dateutil import parser
 from dateutil.relativedelta import relativedelta
 from bs4 import BeautifulSoup
-
-
-#import re
-
 from selenium import webdriver
-# from selenium.common.exceptions import (
-# NoSuchElementException,
-# WebDriverException)
 from selenium.webdriver.chrome.options import Options
-
 
 class Twhist():
 
@@ -122,9 +130,11 @@ class Twhist():
                 content = elem.find(class_='js-tweet-text').text
             else:
                 content = ' '.join(str(item) for item in elem.find(class_='js-tweet-text').contents)
+            
             hashtags = []
             for  ht in elem.find_all(class_='twitter-hashtag'):
                 hashtags.append(ht.text)
+            
             if elem.find(class_='link'):
                 text_link = elem.find(class_='twitter-timeline-link').get('href')
             else:
@@ -139,31 +149,18 @@ class Twhist():
                 retweets = elem.find(class_='ProfileTweet-action--retweet').find(class_='ProfileTweet-actionCount').get('data-tweet-stat-count')
             else:
                 retweets = 'None'
+            
             if elem.find(class_='ProfileTweet-action--reply'):
                 replies = elem.find(class_='ProfileTweet-action--reply').find(class_='ProfileTweet-actionCount').get('data-tweet-stat-count')
             else:
                 replies = 'None'
+            
             if elem.find(class_='ProfileTweet-action--favorite'):
                 favorites = elem.find(class_='ProfileTweet-action--favorite').find(class_='ProfileTweet-actionCount').get('data-tweet-stat-count')
             else:
                 favorites = 'None'
 
-
             results.append([tid, uhandle, uid, content, date, retweets, replies, favorites, hashtags, text_link, attached_link])
-        
-
-        '''
-        links = self.wd.find_elements_by_tag_name('a')
-        regex = r'https?:\/\/twitter.com\/(\w+)\/status\/(\d+)'
-
-        for a in links:
-            href = a.get_attribute('href')
-            group = None
-            match = re.match(regex, str(href))
-            if match:
-                results.append(match.group(2))
-        
-        '''
         return results
 
     def get_status(self, reset=True):
@@ -174,7 +171,3 @@ class Twhist():
 
     def set_status(self, message):
         self.status.append(message)
-
-
-        
-
