@@ -14,6 +14,7 @@ app = Flask('app')
 @app.route('/', methods=['GET', 'POST'])
 def page():
     search_parameters = ''
+    results_headline = ''
     query = request.form.get('query', '')
     since = request.form.get('since', '')
     until = request.form.get('until', '')
@@ -26,12 +27,8 @@ def page():
         results = twh.get(
             query, since, until,
             limit_search=True, intervall='day')
-        
-
         search_parameters = Markup('<p>Search parameters:</p><ul><li>Search query: '+str(query)+'</li><li>Start date: '+str(since)+'</li><li>End date: '+str(until)+'</li></ul>')
-        query_print = Markup('<p><pre>Search query: ' + str(query) + '</pre></p>')
-        since_print = Markup('<p>End date: ' + str(since) + '</p>')
-        until_print = Markup('<p>End date: ' + str(until) + '</p>')
+        
     else:
         results = None
         query_print = ''
@@ -60,12 +57,17 @@ def page():
         results_view = ''
         csv_download_link = ''
 
+    if type(results) == pd.DataFrame or len(search_parameters) > 0:
+        results_headline = Markup('<h3>Results</h3>')
+
+
     print(results)
+    print(results_headline)
 
 
     return render_template(
         'twhist.html', query=query, since=since, until=until, 
-        query_print=query_print, since_print=since_print, until_print=until_print,
+        results_headline=results_headline,
         results=results_view, search_parameters=search_parameters,
         csv_download_link=csv_download_link)
 
