@@ -1,27 +1,29 @@
-#Simple Python module for retrieving historic tweets.
-#Copyright (C) 2019 Marcus Burkhardt and Jörn Preuss
+# Simple Python module for retrieving historic tweets.
+# Copyright (C) 2019 Marcus Burkhardt and Jörn Preuß
 #
-#This program is free software: you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation, either version 3 of the License, or
-#(at your option) any later version.
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
 #
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
 #
-#You should have received a copy of the GNU General Public License
-#along with this program.  If not, see <https://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import time
-import pandas as pd
-from datetime import datetime, date, timedelta
+# import pandas as pd
+from datetime import timedelta  # datetime, date,
 from dateutil import parser
 from dateutil.relativedelta import relativedelta
+import csv
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+
 
 class Twhist():
 
@@ -34,7 +36,10 @@ class Twhist():
         self.wd = webdriver.Chrome(options=options)
         self.status = []
 
-    def get(self, query: str, start: str, end: str, limit_search=True, intervall='day'):
+    def get(
+            self, query: str, start: str, end: str,
+            limit_search=True, intervall='day',
+            csv_download_link: str='result.csv'):
 
         start = parser.parse(start).date()
         end = parser.parse(end).date()
@@ -52,33 +57,45 @@ class Twhist():
             return
 
         if len(query) == 0:
-            print ('Please enter a query.')
+            print('Please enter a query.')
             return
 
         if end <= start:
-            print ('End date needs to be at least one day after start date.')
+            print('End date needs to be at least one day after start date.')
             return
 
-        if limit_search and (end-start > allowed_date_range):
-            print ('Allowed date range of 7 days exceeded.')
+        if limit_search and (end - start > allowed_date_range):
+            print('Allowed date range of 7 days exceeded.')
             return
 
         query_start = start
-        
+
         results = []
         while query_start < end:
-            if query_start+intervall < end:
-                query_end = query_start+intervall
+            if query_start + intervall < end:
+                query_end = query_start + intervall
             else:
                 query_end = end
 
             results.extend(self.call(query, query_start, query_end))
             query_start = query_end
-        
-        results = pd.DataFrame(results, columns=['tid', 'uhandle', 'uid', 'content', 'date', 'retweets', 'replies', 'favorites', 'hashtags', 'text_link', 'attached_link'])
-        return results
 
-    def call(self, query, query_start, query_end):    
+        columns = [
+            'tid', 'uhandle', 'uid', 'content', 'date',
+            'retweets', 'replies', 'favorites', 'hashtags',
+            'text_link', 'attached_link']
+
+        # results = pd.DataFrame(results, )
+
+        with open(csv_download_link, 'w') as csvfile:
+            csvwriter = csv.writer(csvfile)
+            csvwriter.writerow(columns)
+            for line in results:
+                csvwriter.writerow(line)
+
+        return len(results)
+
+    def call(self, query, query_start, query_end):
         query = query.replace(' ', '%20')
 
         search_url = (
@@ -108,7 +125,6 @@ class Twhist():
             if lastCount == lenOfPage:
                 match = True
         print('\n')
-        
 
         results = []
 
@@ -118,7 +134,7 @@ class Twhist():
             tid = elem.get('data-tweet-id')
             uhandle = elem.find(class_='username').text
             uid = elem.get('data-user-id')
-            
+
             if elem.find(class_='tweet-timestamp').get('data-original-title'):
                 date = elem.find(class_='tweet-timestamp').get('data-original-title')
             elif elem.find(class_='tweet-timestamp').get('title'):
@@ -130,11 +146,11 @@ class Twhist():
                 content = elem.find(class_='js-tweet-text').text
             else:
                 content = ' '.join(str(item) for item in elem.find(class_='js-tweet-text').contents)
-            
+
             hashtags = []
-            for  ht in elem.find_all(class_='twitter-hashtag'):
+            for ht in elem.find_all(class_='twitter-hashtag'):
                 hashtags.append(ht.text)
-            
+
             if elem.find(class_='link'):
                 text_link = elem.find(class_='twitter-timeline-link').get('href')
             else:
@@ -146,21 +162,25 @@ class Twhist():
                 attached_link = 'None'
 
             if elem.find(class_='ProfileTweet-action--retweet'):
-                retweets = elem.find(class_='ProfileTweet-action--retweet').find(class_='ProfileTweet-actionCount').get('data-tweet-stat-count')
+                retweets = elem.find(
+                    class_='ProfileTweet-action--retweet').find(class_='ProfileTweet-actionCount').get('data-tweet-stat-count')
             else:
                 retweets = 'None'
-            
+
             if elem.find(class_='ProfileTweet-action--reply'):
-                replies = elem.find(class_='ProfileTweet-action--reply').find(class_='ProfileTweet-actionCount').get('data-tweet-stat-count')
+                replies = elem.find(
+                    class_='ProfileTweet-action--reply').find(class_='ProfileTweet-actionCount').get('data-tweet-stat-count')
             else:
                 replies = 'None'
-            
+
             if elem.find(class_='ProfileTweet-action--favorite'):
-                favorites = elem.find(class_='ProfileTweet-action--favorite').find(class_='ProfileTweet-actionCount').get('data-tweet-stat-count')
+                favorites = elem.find(
+                    class_='ProfileTweet-action--favorite').find(class_='ProfileTweet-actionCount').get('data-tweet-stat-count')
             else:
                 favorites = 'None'
 
-            results.append([tid, uhandle, uid, content, date, retweets, replies, favorites, hashtags, text_link, attached_link])
+            results.append([tid, uhandle, uid, content, date, retweets, replies,
+                            favorites, hashtags, text_link, attached_link])
         return results
 
     def get_status(self, reset=True):
