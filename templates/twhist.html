@@ -1,23 +1,59 @@
 <!DOCTYPE html>
-<html lang="de"><head><title>Twhist</title></head>
+<html lang="de">
+    <head>
+        <title>Twhist</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    </head>
     <body>
-        <h1>Twhist</h1>
-        <form method="POST">
-            <pre><label for="query">Query </label></pre>
-            <input name="query" value="{{query}}"><br>
-            <pre><label for="since">Since </label></pre>
-            <input type="date" name="since" value="{{since}}"><br>
-            <pre><label for="until">Until </label></pre>
-            <input type="date" name="until" value="{{until}}"><br>
-            <input type="submit">
-        </form>
-        <p>
-            Eingaben: query={{query}}, since={{since}}, until={{until}}
-        </p>
-        <p>
-            <h2>Results</h2>
-            <a href="{{csv_download_link}}">Download</a>
-            <pre>{{results|safe}}</pre>
-        </p>
+        <div class="container pt-4">
+            <div class="row">
+                <div class="col-2"></div>
+
+
+                <div id="tool" class="col-8">
+                    <h1>Twitter History Search</h1>
+                    
+                    <div class="row pt-4 pb-4">
+                        <div class="col-4">
+                            <div id="input">
+                                <form method="POST">
+                                    <div class="form-group row">
+                                        <div class="col">
+                                            <label for="query">Search query</label>
+                                            <input class="form-control" name="query" placeholder="Enter search query" 
+                                            value="{{query}}">
+                                            </small>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="col">
+                                            <label for="since">Start date</label>
+                                            <input type="date" class="form-control" name="since" placeholder="YYYY-MM-DD" value="{{since}}">
+                                        </div>
+                                        <div class="col">
+                                            <label for="unti">End date</label>
+                                            <input type="date" class="form-control" name="until" placeholder="YYYY-MM-DD" value="{{until}}">
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-dark">Submit</button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="col-8 pt-4">
+                            <div id="description" class="mt-8 mb-8">
+                                <p>Description of the tool. Needs to be added and retrieved from tool.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="output mt-4">
+                        <h3>Results</h3>
+                        {{search_parameters}}
+                        <p><pre>{{results|safe}}</pre></p>
+                        <p>{{csv_download_link}}<!--<a href="{{csv_download_link}}">Download</a>--></p> 
+                    </div>
+                </div>
+                <div class="col-2"></div>
+            </div>
+        </div>
     </body>
 </html>

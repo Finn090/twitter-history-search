@@ -70,10 +70,7 @@ class Twhist():
         results = pd.DataFrame(results, columns=['tid', 'uhandle', 'uid', 'content', 'date', 'retweets', 'replies', 'favorites', 'hashtags', 'text_link', 'attached_link'])
         return results
 
-
-    
     def call(self, query, query_start, query_end):    
-
         query = query.replace(' ', '%20')
 
         search_url = (
@@ -167,16 +164,17 @@ class Twhist():
                 results.append(match.group(2))
         
         '''
-
-        def get_status(self, reset=True):
-            status = self.status
-            if reset:
-                self.status
-            return status
-
-        def set_status(self, message):
-            self.status.append(message)
-
-
         return results
+
+    def get_status(self, reset=True):
+        status = self.status
+        if reset:
+            self.status
+        return status
+
+    def set_status(self, message):
+        self.status.append(message)
+
+
+        
 
