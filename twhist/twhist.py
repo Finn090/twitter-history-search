@@ -24,6 +24,7 @@ class Twhist():
             options.add_argument('--headless')
         options.add_argument('--disable-dev-shm-usage')
         self.wd = webdriver.Chrome(options=options)
+        self.status = []
 
     def get(self, query: str, start: str, end: str, limit_search=True, intervall='day'):
 
@@ -80,7 +81,8 @@ class Twhist():
             f'%20since%3A{query_start}%20until%3A{query_end}'
         )
 
-        print(search_url, end='')
+        print('Retrieving: ' + search_url + ' ', end='')
+        self.set_status('Retrieving: ' + search_url)
 
         self.wd.get(search_url)
 
@@ -94,6 +96,7 @@ class Twhist():
         match = False
         while not match:
             print('.', end='')
+            self.set_status('.')
             lastCount = lenOfPage
             time.sleep(3)
             lenOfPage = self.wd.execute_script(script)
@@ -164,5 +167,16 @@ class Twhist():
                 results.append(match.group(2))
         
         '''
+
+        def get_status(self, reset=True):
+            status = self.status
+            if reset:
+                self.status
+            return status
+
+        def set_status(self, message):
+            self.status.append(message)
+
+
         return results
 
