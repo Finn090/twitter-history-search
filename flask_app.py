@@ -16,7 +16,7 @@
 
 import os
 import re
-import pandas as pd
+# import pandas as pd
 from datetime import datetime
 from flask import Flask, render_template, request, Markup
 from twhist.twhist import Twhist
@@ -76,7 +76,7 @@ def page():
         results_view = ''
         csv_download_link = ''
 
-    if type(results) == pd.DataFrame or len(search_parameters) > 0:
+    if type(results) == int or len(search_parameters) > 0:
         results_headline = Markup('<h3>Results</h3>')
 
     print(results)

@@ -4,4 +4,4 @@
 export FLASK_APP=flask_app:app
 export FLASK_DEBUG=true
 export FLASK_ENV=development
-python3.7 -m flask run --port=8048
+python3 -m flask run --port=8048
