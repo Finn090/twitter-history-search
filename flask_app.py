@@ -43,10 +43,12 @@ def page():
 
     # csv_file_path_and_name = 'downloads/' + csv_file_name
     
-    if not os.path.isdir('static'):
-        os.makedirs('static')
+    outpath = os.path.join('static', 'downloads')
 
-    csv_download_link = os.path.join('static', csv_file_name)
+    if not os.path.isdir(outpath):
+        os.makedirs(outpath)
+
+    csv_download_link = os.path.join(outpath, csv_file_name)
 
     if type(results) == pd.DataFrame:
         results.to_csv(csv_download_link)
