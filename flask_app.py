@@ -67,20 +67,22 @@ def page():
         # since_print = ''
         # until_print = ''
 
-    if type(results) == int:  # pd.DataFrame:
+    if type(results) == list:  # pd.DataFrame:
         # results.to_csv(csv_download_link)
-        results_view = f'{results} tweets retrieved.'
+        results_view = f'{len(results) - 1} tweets retrieved.'
         csv_download_link = Markup(
             f'<p><a href="{csv_download_link}">Download results.</a></p>')
+
+        # print(len(results) - 1)
+
     else:
         results_view = ''
         csv_download_link = ''
 
-    if type(results) == int or len(search_parameters) > 0:
+    if type(results) == list or len(search_parameters) > 0:
         results_headline = Markup('<h3>Results</h3>')
 
-    print(results)
-    print(results_headline)
+    # print(results_headline)
 
     return render_template(
         'twhist.html', query=query, since=since, until=until,

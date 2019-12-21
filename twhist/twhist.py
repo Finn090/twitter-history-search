@@ -93,7 +93,7 @@ class Twhist():
             for line in results:
                 csvwriter.writerow(line)
 
-        return len(results)
+        return [columns] + results
 
     def call(self, query, query_start, query_end):
         query = query.replace(' ', '%20')
@@ -135,52 +135,65 @@ class Twhist():
             uhandle = elem.find(class_='username').text
             uid = elem.get('data-user-id')
 
-            if elem.find(class_='tweet-timestamp').get('data-original-title'):
-                date = elem.find(class_='tweet-timestamp').get('data-original-title')
-            elif elem.find(class_='tweet-timestamp').get('title'):
-                date = elem.find(class_='tweet-timestamp').get('title')
+            tweet_timestamp = elem.find(class_='tweet-timestamp')
+            if tweet_timestamp.get('data-original-title'):
+                date = tweet_timestamp.get('data-original-title')
+            elif tweet_timestamp.get('title'):
+                date = tweet_timestamp.get('title')
             else:
-                date = elem.find(class_='tweet-timestamp')
+                date = tweet_timestamp
 
             if elem.find(class_='js-tweet-text').text:
                 content = elem.find(class_='js-tweet-text').text
             else:
-                content = ' '.join(str(item) for item in elem.find(class_='js-tweet-text').contents)
+                content = ' '.join(str(item) for item in
+                                   elem.find(class_='js-tweet-text').contents)
 
             hashtags = []
             for ht in elem.find_all(class_='twitter-hashtag'):
                 hashtags.append(ht.text)
 
             if elem.find(class_='link'):
-                text_link = elem.find(class_='twitter-timeline-link').get('href')
+                text_link = elem \
+                    .find(class_='twitter-timeline-link').get('href')
             else:
                 text_link = 'None'
 
             if elem.find(class_='js-macaw-cards-iframe-container'):
-                attached_link = elem.find(class_='js-macaw-cards-iframe-container').get('data-card-url')
+                attached_link = elem \
+                    .find(class_='js-macaw-cards-iframe-container') \
+                    .get('data-card-url')
             else:
                 attached_link = 'None'
 
             if elem.find(class_='ProfileTweet-action--retweet'):
-                retweets = elem.find(
-                    class_='ProfileTweet-action--retweet').find(class_='ProfileTweet-actionCount').get('data-tweet-stat-count')
+                retweets = elem \
+                    .find(class_='ProfileTweet-action--retweet') \
+                    .find(class_='ProfileTweet-actionCount') \
+                    .get('data-tweet-stat-count')
             else:
                 retweets = 'None'
 
             if elem.find(class_='ProfileTweet-action--reply'):
-                replies = elem.find(
-                    class_='ProfileTweet-action--reply').find(class_='ProfileTweet-actionCount').get('data-tweet-stat-count')
+                replies = elem \
+                    .find(class_='ProfileTweet-action--reply') \
+                    .find(class_='ProfileTweet-actionCount') \
+                    .get('data-tweet-stat-count')
             else:
                 replies = 'None'
 
             if elem.find(class_='ProfileTweet-action--favorite'):
-                favorites = elem.find(
-                    class_='ProfileTweet-action--favorite').find(class_='ProfileTweet-actionCount').get('data-tweet-stat-count')
+                favorites = elem \
+                    .find(class_='ProfileTweet-action--favorite') \
+                    .find(class_='ProfileTweet-actionCount') \
+                    .get('data-tweet-stat-count')
             else:
                 favorites = 'None'
 
-            results.append([tid, uhandle, uid, content, date, retweets, replies,
-                            favorites, hashtags, text_link, attached_link])
+            results.append(
+                [tid, uhandle, uid, content, date, retweets, replies,
+                 favorites, hashtags, text_link, attached_link])
+
         return results
 
     def get_status(self, reset=True):
