@@ -1,4 +1,4 @@
-  # Twitter History Search 
+# Twitter History Search 
 
 This tool allows you to retrieve historic Twitter data. Development is currently ongoing. You can use the tool either as Python module or as Flask web app. The functionality of the web app is by default limited to a search period of seven days. 
 
