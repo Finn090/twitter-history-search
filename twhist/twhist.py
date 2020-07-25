@@ -23,7 +23,7 @@ import csv
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-
+from chromedriver_py import binary_path
 
 class Twhist():
 
@@ -33,7 +33,7 @@ class Twhist():
         if self.headless:
             options.add_argument('--headless')
         options.add_argument('--disable-dev-shm-usage')
-        self.wd = webdriver.Chrome(options=options)
+        self.wd = webdriver.Chrome(executable_path=binary_path, options=options)
         self.status = []
 
     def get(
