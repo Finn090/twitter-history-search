@@ -16,15 +16,16 @@
 
 import os
 import re
-# import pandas as pd
-from datetime import datetime
+#import json
+import pandas as pd
+import datetime as dt
+from datetime import timedelta
 from flask import Flask, render_template, request, Markup
 from twhist.twhist import Twhist
 
 
 # from app import app
 app = Flask('app')
-
 
 @app.route('/', methods=['GET', 'POST'])
 def page():
@@ -33,63 +34,54 @@ def page():
     query = request.form.get('query', '')
     since = request.form.get('since', '')
     until = request.form.get('until', '')
+    limit = request.form.get('limit', '')
     # user = {'username': 'Miguel'}
 
-    twh = Twhist()
-
-    fnp1 = datetime.now().strftime('%Y%m%d-%H%M%S')
-    fnp2 = re.sub(r'\W', '_', query if query else '_')
-    fnp3 = re.sub(r'\W', '_', since if since else '_')
-    fnp4 = re.sub(r'\W', '_', until if until else '_')
-    csv_file_name = f'thwist-{fnp1}-{fnp2}-{fnp3}-{fnp4}.csv'
-
-    outpath = os.path.join('static', 'downloads')
-
-    if not os.path.isdir(outpath):
-        os.makedirs(outpath)
-
-    csv_download_link = os.path.join(outpath, csv_file_name)
+    error = None
+    results_headline = None
+    results_view = None
+    csv_download_link = None
 
     if query and since and until:
-        results = twh.get(
-            query, since, until,
-            limit_search=True, intervall='day',
-            csv_download_link=csv_download_link)
-        search_parameters = Markup(
-            f'<p>Search parameters:</p><ul>'
-            f'<li>Search query: {query}</li>'
-            f'<li>Start date: {since}</li>'
-            f'<li>End date: {until}</li></ul>')
+        try:
+            since = dt.datetime.strptime(since, "%Y-%m-%d").date()
+            until = dt.datetime.strptime(until, "%Y-%m-%d").date()
+            if until-since > timedelta(days=0) and until-since <= timedelta(days=7):
+                twh = Twhist(query, since, until, limit)
+                if not twh.error:
+                    results = twh.start_query()
 
-    else:
-        results = None
-        # query_print = ''
-        # since_print = ''
-        # until_print = ''
+                    fnp1 = dt.datetime.now().strftime('%Y%m%d-%H%M%S')
+                    fnp2 = re.sub(r'\W', '_', query if query else '_')
+                    fnp3 = re.sub(r'\W', '_', str(since) if since else '_')
+                    fnp4 = re.sub(r'\W', '_', str(until) if until else '_')
+                    csv_file_name = f'thwist-{fnp1}-{fnp2}-{fnp3}-{fnp4}.csv'
+                    outpath = os.path.join('static', 'downloads')
+                    if not os.path.isdir(outpath):
+                        os.makedirs(outpath)
 
-    if type(results) == list:  # pd.DataFrame:
-        # results.to_csv(csv_download_link)
-        results_view = f'{len(results) - 1} tweets retrieved.'
-        csv_download_link = Markup(
-            f'<p><a href="{csv_download_link}">Download results.</a></p>')
+                    csv_download_link = os.path.join(outpath, csv_file_name)
+                    df = pd.DataFrame()
+                    for result in results:
+                        df = df.append(pd.DataFrame(result["results"]))
+                    df.to_csv(csv_download_link, sep=";")
 
-        # print(len(results) - 1)
+                    csv_download_link = Markup(f'<p><a href="{csv_download_link}">Download results.</a></p>')
 
-    else:
-        results_view = ''
-        csv_download_link = ''
+                    results_headline = Markup('<h3>Results</h3>')
 
-    if type(results) == list or len(search_parameters) > 0:
-        results_headline = Markup('<h3>Results</h3>')
-
-    # print(results_headline)
+                else:
+                    error = twh.error_message
+            else:
+                error = "Dates are either further than 7 days apart or not in the right order."
+        except ValueError:
+            error = "Dates were not valid."           
 
     return render_template(
-        'twhist.html', query=query, since=since, until=until,
+        'twhist.html', query=query, since=since, until=until, limit=limit, error=error,
         results_headline=results_headline,
-        results=results_view, search_parameters=search_parameters,
         csv_download_link=csv_download_link)
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=8048)
+    app.run(host='0.0.0.0', port=8048, debug=True)

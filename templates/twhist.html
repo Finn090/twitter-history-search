@@ -34,6 +34,12 @@
                                             <input type="date" class="form-control" name="until" placeholder="YYYY-MM-DD" value="{{until}}">
                                         </div>
                                     </div>
+                                    <div class="form-group row">
+                                        <div class="col">
+                                            <label for="limit">Limit of tweets per day</label>
+                                            <input type="number" class="form-control" name="limit" value="{{limit}}">
+                                        </div>
+                                    </div>
                                     <button type="submit" class="btn btn-dark">Submit</button>
                                 </form>
                             </div>
@@ -41,15 +47,18 @@
                         <div class="col-8 pt-4">
                             <div id="description" class="mt-8 mb-8">
                                 <p>Description of the tool. Needs to be added and retrieved from tool.</p>
+                                {% if error %}
+                                    <p>{{error}}</p>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
+                    {% if results_headline %}
                     <div id="output mt-4">
                         {{results_headline}}
-                        {{search_parameters}}
-                        <p><pre>{{results|safe}}</pre></p>
                         <p>{{csv_download_link}}<!--<a href="{{csv_download_link}}">Download</a>--></p> 
                     </div>
+                    {% endif %}
                 </div>
                 <div class="col-2"></div>
             </div>
