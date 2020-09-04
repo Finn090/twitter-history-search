@@ -56,7 +56,8 @@
                     {% if results_headline %}
                     <div id="output mt-4">
                         {{results_headline}}
-                        <p>{{csv_download_link}}<!--<a href="{{csv_download_link}}">Download</a>--></p> 
+                        <p>{{csv_download_link}}<!--<a href="{{csv_download_link}}">Download</a>--></p>
+                        {{ df|safe }}
                     </div>
                     {% endif %}
                 </div>
